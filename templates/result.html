@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results - Employee Access Checker</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/libertinus-mono" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='bg.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem 3rem;
+            max-width: 900px;
+            width: 90%;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            color: #2c2c2c;
+        }
+
+        h1 {
+            font-family: 'Anton', sans-serif;
+            text-align: center;
+            font-size: 2.5rem;
+            color: #d72638;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-family: 'Libertinus Mono', monospace;
+            font-size: 1.3rem;
+            color: #444;
+            margin-top: 2rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.5rem;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin: 0.6rem 0;
+            font-style: italic;
+            font-size: 1.05rem;
+        }
+
+        .found {
+            color: #1e8e3e;
+            font-weight: bold;
+        }
+
+        .not-found {
+            color: #d43f3f;
+            font-weight: bold;
+        }
+
+        a.back-link {
+            display: block;
+            text-align: center;
+            margin-top: 2.5rem;
+            font-weight: bold;
+            color: #d72638;
+            text-decoration: none;
+            font-family: 'Libertinus Mono', monospace;
+        }
+
+        a.back-link:hover {
+            color: #a81828;
+        }
+
+        .delete-btn {
+            margin-left: 10px;
+            background: #d72638;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .delete-btn:hover {
+            background-color: #a81828;
+        }
+
+        /* Modal Styling */
+        #confirmModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #confirmModal .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 300px;
+            position: relative;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        #confirmModal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: #d72638;
+        }
+
+        .modal-buttons button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            margin: 0 0.5rem;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:first-child {
+            background-color: #d72638;
+            color: white;
+        }
+
+        .modal-buttons button:last-child {
+            background-color: #ccc;
+        }
+
+        #modalResult {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        .logout-link {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background-color: #d72638;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .logout-link:hover {
+            background-color: #a81828;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Access Checker</h1>
+
+        <h3>AWS</h3>
+        <ul>
+            {% for email, accounts in results.items() %}
+                <li>
+                    <strong>{{ email }}</strong>
+                    <ul>
+                        {% for account, status in accounts.items() %}
+                            <li>
+                                {{ account }}: 
+                                <span class="{{ 'found' if '✅' in status else 'not-found' }}">{{ status }}</span>
+                                {% if '✅' in status %}
+                                    <button class="delete-btn" id="btn-{{ email }}-{{ account|lower }}" onclick="confirmDelete('{{ email }}', '{{ account|lower }}')">🗑️ Delete</button>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+
+        
+        <h3>GitLab</h3>
+        <ul>
+            {% for email, result in gitlab_results.items() %}
+                <li><strong>{{ email }}:</strong> <span class="{{ 'found' if '✅' in result else 'not-found' }}">{{ result }}</span></li>
+            {% endfor %}
+        </ul>
+
+        <h3>Azure</h3>
+        <ul>
+            {% for email, result in azure_results.items() %}
+                <li><strong>{{ email }}:</strong> <span class="{{ 'found' if '✅' in result else 'not-found' }}">{{ result }}</span></li>
+            {% endfor %}
+        </ul>
+
+        <a class="back-link" href="/">🔁 Check Again</a>
+        <a href="{{ url_for('logout') }}" class="logout-link">🚪 Logout</a>
+    </div>
+
+    <!-- Confirmation Popup Modal -->
+    <div id="confirmModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <p id="modalPrompt">
+                Are you sure you want to delete <span id="userToDelete" style="font-weight:bold;"></span>?
+            </p>
+
+            <div class="modal-buttons" id="modalButtons">
+                <button onclick="performDelete()">Yes, Delete</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+
+            <!-- Progress bar -->
+            <div id="progressContainer" class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+
+            <!-- Result message -->
+            <div id="modalResult"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedEmail = "";
+        let selectedAccount = "";
+
+        function confirmDelete(email, account) {
+            selectedEmail = email;
+            selectedAccount = account;
+            document.getElementById('userToDelete').innerText = `${email} (${account})`;
+            document.getElementById('modalPrompt').style.display = 'block';
+            document.getElementById('modalButtons').style.display = 'block';
+            document.getElementById('modalResult').innerText = '';
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        function performDelete() {
+            const email = selectedEmail;
+            const account = selectedAccount;
+            const progressBar = document.getElementById("progressBar");
+            const progressContainer = document.getElementById("progressContainer");
+            const modalResult = document.getElementById("modalResult");
+            const modalButtons = document.getElementById("modalButtons");
+
+            modalResult.textContent = "";
+            progressBar.style.width = "0%";
+            progressContainer.style.display = "block";
+            modalButtons.style.display = "none";
+
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 90) {
+                    clearInterval(interval);
+                } else {
+                    width += 5;
+                    progressBar.style.width = width + "%";
+                }
+            }, 100);
+
+            fetch("/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: email, account: account })
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(interval);
+                progressBar.style.width = "100%";
+
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    modalResult.innerHTML = data.message;
+                    if (data.success) {
+                        modalResult.style.color = "green";
+                        const deleteBtn = document.getElementById(`btn-${email}-${account}`);
+                        if (deleteBtn) deleteBtn.remove();
+                    } else {
+                        modalResult.style.color = "red";
+                    }
+                }, 300);
+            })
+            .catch(err => {
+                clearInterval(interval);
+                progressContainer.style.display = "none";
+                modalResult.innerHTML = `<span style="color:red;">❌ Error: ${err.message}</span>`;
+            });
+        }
+    </script>
+
+</body>
+</html>

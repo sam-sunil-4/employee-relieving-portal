@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <deployment-name>
+  namespace: <namespace>
+  annotations:
+    reloader.stakater.com/auto : "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <app-label>
+  template:
+    metadata:
+      labels:
+        app: <app-label>
+    spec:
+      containers:
+        - name: <container-name>
+          image: <image-url>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: <Port>
+          env:
+            - name: GITLAB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: PAT
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: 
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: secondary_aws_access_key
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: secondary_aws_secret_key
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: secondary_aws_region
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: primary_aws_access_key
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: primary_aws_secret_key
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: primary_aws_region
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: FLASK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
+            - name: ALLOWED_EMAILS
+              valueFrom:
+                secretKeyRef:
+                  name: <external-secret-name>
+                  key: <key in ssm>
