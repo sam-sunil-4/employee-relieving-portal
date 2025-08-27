@@ -88,15 +88,15 @@ def authorized():
         session['email'] = userinfo['email']
         logging.info(f"User {session['email']} successfully authenticated with Google.")
 
-        if not session['email'].endswith('@qburst.com') or session['email'].lower() not in ALLOWED_EMAILS:
+        if not session['email'].endswith('@<company-email>.com') or session['email'].lower() not in ALLOWED_EMAILS:
             session.clear()
             logging.warning(f"Unauthorized login attempt by {userinfo['email']}. Session cleared.")
             return "Unauthorized access."
         
-        if not session['email'].endswith('@qburst.com'):
+        if not session['email'].endswith('@<company-email>.com'):
             session.clear()
             logging.warning(f"Unauthorized login attempt by {userinfo['email']}. Session cleared.")
-            return "Unauthorized access. Only @qburst.com emails are allowed."
+            return "Unauthorized access. Only @<company-email>.com emails are allowed."
 
         return redirect(url_for("form"))
 
