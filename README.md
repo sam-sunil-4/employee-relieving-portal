@@ -10,5 +10,7 @@ Attached the manifests files to deploy them into the Kubernetes cluster and expo
 Also we are using a reloader to autoamtically restart the pod to take this env change into effect. You can install the reloader using Helm by following the commands below
 
 helm repo add stakater https://stakater.github.io/stakater-charts
+
 helm repo update
+
 helm install reloader stakater/reloader
